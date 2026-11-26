@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Mercadito Design</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;800&display=swap">
+<style>
+/* Layout: barra superior fija con carrito, luego catálogo, cómo comprar y vender, todo en una columna limpia de 1040px.
+   Paleta: blanco frío, verde salvia como acento y lila suave como apoyo. */
+:root {
+  --bg: #F8F9F8;
+  --surface: #FFFFFF;
+  --fg: #1B1F1D;
+  --muted: #637069;
+  --line: #E2E7E4;
+  --accent: #3F6B5A;
+  --accent-fg: #FFFFFF;
+  --tint: #E6EFEA;
+  --lilac: #E4DEF4;
+  --lilac-fg: #3C2F73;
+  --ok: #1F7A4D;
+  --warn: #8A5F00;
+  --bad: #A03A3A;
+  --font-display: 'Plus Jakarta Sans', 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111513; --surface: #1A201D; --fg: #E9EEEB; --muted: #9AA8A0; --line: #2A332E;
+    --accent: #8FC4AB; --accent-fg: #0F1F18; --tint: #20302A; --lilac: #2E2850; --lilac-fg: #D6CDF5;
+    --ok: #5CC796; --warn: #E0B04A; --bad: #E58A8A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111513; --surface: #1A201D; --fg: #E9EEEB; --muted: #9AA8A0; --line: #2A332E;
+  --accent: #8FC4AB; --accent-fg: #0F1F18; --tint: #20302A; --lilac: #2E2850; --lilac-fg: #D6CDF5;
+  --ok: #5CC796; --warn: #E0B04A; --bad: #E58A8A;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.55; margin: 0; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 30; }
+.in { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.1rem, 7.5vw, 3.4rem); font-weight: 800; letter-spacing: -0.025em; }
+h2 { font-size: clamp(1.4rem, 4.5vw, 1.8rem); font-weight: 800; letter-spacing: -0.015em; }
+h3 { font-size: 1rem; font-weight: 600; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top .in { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 58px; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; letter-spacing: -0.01em; color: var(--fg); text-decoration: none; }
+.nav { display: flex; align-items: center; gap: 18px; }
+.nav a { color: var(--muted); text-decoration: none; font-size: .92rem; font-weight: 500; }
+.nav a:hover { color: var(--fg); }
+@media (max-width: 640px) { .nav a { display: none; } }
+.btn {
+  font: inherit; font-weight: 600; font-size: .95rem; cursor: pointer; border: 0; border-radius: 10px;
+  background: var(--accent); color: var(--accent-fg); padding: 10px 16px; min-height: 44px; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn.ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.btn.small { min-height: 40px; padding: 8px 12px; }
+.btn:disabled, .btn[aria-disabled="true"] { background: var(--line); color: var(--muted); border-color: transparent; cursor: not-allowed; }
+.count { background: var(--lilac); color: var(--lilac-fg); border-radius: 999px; min-width: 22px; height: 22px; padding: 0 6px; font-size: .8rem; display: inline-grid; place-items: center; font-variant-numeric: tabular-nums; }
+
+main { display: flex; flex-direction: column; gap: 56px; padding-block: 32px 64px; }
+section { display: flex; flex-direction: column; gap: 18px; }
+.hero { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+.hero p { color: var(--muted); max-width: 52ch; font-size: 1.05rem; }
+.note { background: var(--lilac); color: var(--lilac-fg); border-radius: 10px; padding: 9px 14px; font-size: .88rem; max-width: 62ch; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: .9rem; font-weight: 500; cursor: pointer; background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; min-height: 40px; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.row > * { min-width: 0; }
+.row .grow { flex: 1 1 220px; }
+.row .fixed { flex: 0 1 210px; }
+label { display: flex; flex-direction: column; gap: 6px; font-size: .88rem; font-weight: 500; }
+input, select, textarea { font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 44px; width: 100%; }
+textarea { resize: vertical; min-height: 130px; }
+.check { flex-direction: row; align-items: center; gap: 8px; min-height: 44px; }
+.check input { width: auto; min-height: 0; accent-color: var(--accent); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.photo { aspect-ratio: 4 / 5; max-width: 100%; background: var(--tint); color: var(--accent); display: grid; place-items: center; position: relative; }
+.photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo svg { width: 42px; height: 42px; opacity: .65; }
+.badge { position: absolute; top: 10px; left: 10px; font-size: .75rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+.badge.reservado { color: var(--warn); }
+.badge.vendido { color: var(--bad); }
+.card .body { padding: 14px 14px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.cat { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.meta { color: var(--muted); font-size: .88rem; }
+.price { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: auto; padding-top: 8px; }
+.card .btn { margin: 0 14px 14px; }
+.card.off .photo, .card.off .body { opacity: .55; }
+.empty { color: var(--muted); padding: 20px 0; }
+
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 6px; }
+.step p, .hint { color: var(--muted); font-size: .92rem; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.fact { background: var(--tint); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; }
+
+.sell { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.result { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+.result div { display: flex; flex-direction: column; }
+.result .n { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.result .l { font-size: .8rem; color: var(--muted); }
+
+dialog { background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 16px; padding: 20px; width: min(560px, calc(100% - 32px)); max-height: calc(100% - 32px); overflow: auto; }
+dialog::backdrop { background: rgba(8, 12, 10, .55); }
+.dlg { display: flex; flex-direction: column; gap: 14px; }
+.dlg-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.lines { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; }
+.line { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; }
+.line + .line { border-top: 1px solid var(--line); }
+.line .t { min-width: 0; display: flex; flex-direction: column; }
+.line .t span:first-child { font-weight: 600; overflow-wrap: anywhere; }
+.link { background: none; border: 0; color: var(--bad); font: inherit; font-size: .88rem; cursor: pointer; padding: 8px; min-height: 40px; }
+.total { display: flex; justify-content: space-between; font-weight: 600; padding: 0 4px; font-variant-numeric: tabular-nums; }
+.opts { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.toast { font-size: .9rem; color: var(--ok); min-height: 1.3em; font-weight: 500; }
+footer { border-top: 1px solid var(--line); padding-block: 24px; color: var(--muted); font-size: .85rem; }
+@media (prefers-reduced-motion: no-preference) { .card { transition: transform .15s ease; } .card:hover { transform: translateY(-2px); } }
+.banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: var(--lilac); color: var(--lilac-fg); border-radius: 14px; padding: 14px 16px; margin-top: -16px; }
+.banner .btn.ghost { color: var(--lilac-fg); border-color: var(--lilac-fg); }
+.banner .btn:not(.ghost) { background: var(--lilac-fg); color: var(--lilac); }
+.top .in { flex-wrap: nowrap; }
+.brand { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; }
+.nav { margin-left: auto; flex: 0 1 auto; }
+.nav a { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; }
+.nav .btn { white-space: nowrap; }
+@media (max-width: 640px) { .nav a { display: none; } }
+.summary { display: flex; flex-direction: column; gap: 4px; }
+.summary .tot { font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; padding-top: 6px; border-top: 1px solid var(--line); margin-top: 4px; }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+.crit { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; align-items: start; }
+.crit ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: .95rem; }
+.crit dl { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.crit dt { font-weight: 600; }
+.crit dd { margin: 2px 0 0; color: var(--muted); font-size: .92rem; }
+</style>
+
+<header class="top">
+  <div class="in">
+    <a class="brand" href="#inicio">Mercadito Design</a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#catalogo">Catálogo</a>
+      <a href="#como-comprar">Cómo comprar</a>
+      <a href="#vender">Vende con nosotros</a>
+      <a href="#unete">Únete</a>
+      <button class="btn small" type="button" id="btn-carrito">Carrito <span class="count" id="cart-n">0</span></button>
+    </nav>
+  </div>
+</header>
+
+<main class="in" id="inicio">
+  <div class="banner" id="banner">
+    <p><strong>¿Quieres ser parte de la comunidad?</strong> Llena tu ficha para comprar y vender con nosotros.</p>
+    <div class="actions">
+      <a class="btn small" href="#unete" id="banner-ir">Llenar mi ficha</a>
+      <button class="btn ghost small" type="button" id="banner-x">Ahora no</button>
+    </div>
+  </div>
+  <div class="hero">
+    <h1>Ropa y cosas con una segunda vida en Punta Arenas</h1>
+    <p>Objetos en buen estado de gente de la comunidad. Elige lo que te guste, arma tu carrito y envía el pedido por WhatsApp.</p>
+  </div>
+
+  <section id="catalogo" aria-labelledby="t-cat">
+    <h2 id="t-cat">Catálogo</h2>
+    <div class="chips" id="chips" role="group" aria-label="Categorías"></div>
+    <div class="row">
+      <label class="grow">Buscar
+        <input id="q" type="search" placeholder="Polerón, zapatillas, mochila...">
+      </label>
+      <label class="fixed">Ordenar por
+        <select id="orden">
+          <option value="nuevo">Más nuevos</option>
+          <option value="menor">Precio: menor a mayor</option>
+          <option value="mayor">Precio: mayor a menor</option>
+        </select>
+      </label>
+      <label class="check"><input id="solo-disp" type="checkbox" checked> Solo disponibles</label>
+    </div>
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="vacio" hidden>No hay productos con ese filtro. Prueba con otra categoría o busca otra palabra.</p>
+  </section>
+
+  <section id="como-comprar" aria-labelledby="t-como">
+    <h2 id="t-como">Cómo comprar</h2>
+    <div class="steps">
+      <div class="step"><h3>1. Elige y agrega al carrito</h3><p>Cada objeto es único, así que solo hay uno de cada cosa.</p></div>
+      <div class="step"><h3>2. Envía tu pedido</h3><p>Desde el carrito mandas el pedido por WhatsApp. Confirmamos que sigue disponible.</p></div>
+      <div class="step"><h3>3. Paga y recibe</h3><p>Te enviamos los datos para la transferencia. Cuando llega el pago, coordinamos la entrega.</p></div>
+    </div>
+    <div class="facts">
+      <div class="fact"><h3>Pago</h3><p class="hint">Por transferencia.</p></div>
+      <div class="fact"><h3>Entrega</h3><p class="hint">Retiro en persona o envío a domicilio en Punta Arenas.</p></div>
+    </div>
+  </section>
+
+  <section id="vender" aria-labelledby="t-vender">
+    <h2 id="t-vender">Vende con nosotros</h2>
+    <p class="hint" style="max-width:60ch;font-size:1rem">Tú nos dices cuánto quieres recibir. Publicamos tu objeto con un 20% más, y esa diferencia es nuestra comisión.</p>
+    <div class="sell">
+      <div class="panel">
+        <h3>Calculadora de precio</h3>
+        <label>Quiero recibir (CLP)
+          <input id="calc" type="number" inputmode="numeric" min="0" step="500" value="10000">
+        </label>
+        <div class="result" aria-live="polite">
+          <div><span class="n" id="calc-pub">$12.000</span><span class="l">Precio publicado</span></div>
+          <div><span class="n" id="calc-gan">$2.000</span><span class="l">Comisión</span></div>
+        </div>
+      </div>
+      <form class="panel" id="form-vende" novalidate>
+        <h3>Inscribe tu objeto</h3>
+        <label>Tu nombre
+          <input id="f-nombre" type="text" autocomplete="name" placeholder="Nombre y apellido">
+        </label>
+        <label>Qué quieres vender
+          <input id="f-objeto" type="text" placeholder="Ej: polerón gris con capucha">
+        </label>
+        <div class="row">
+          <label class="grow">Categoría<select id="f-cat"></select></label>
+          <label class="grow">Talla o detalle<input id="f-talla" type="text" placeholder="Ej: talla M"></label>
+        </div>
+        <div class="row">
+          <label class="grow">Estado
+            <select id="f-estado"><option>Como nuevo</option><option>Muy buen estado</option><option>Buen estado</option><option>Con detalles</option></select>
+          </label>
+          <label class="grow">Precio que quieres recibir
+            <input id="f-precio" type="number" inputmode="numeric" min="0" step="500" placeholder="10000">
+          </label>
+        </div>
+        <p class="hint">Revisa los <a href="#criterios">criterios de fotos y estados</a> antes de enviar.</p>
+        <button class="btn" type="submit">Preparar mi mensaje</button>
+        <div id="f-out" hidden style="display:flex;flex-direction:column;gap:10px">
+          <textarea id="f-msg" readonly aria-label="Mensaje listo para enviar"></textarea>
+          <div class="actions">
+            <a class="btn" id="f-wa" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+            <button class="btn ghost" type="button" id="f-copy">Copiar mensaje</button>
+          </div>
+        </div>
+        <p class="toast" id="f-toast" role="status"></p>
+      </form>
+    </div>
+  </section>
+  <section id="criterios" aria-labelledby="t-crit">
+    <h2 id="t-crit">Criterios para publicar</h2>
+    <p class="hint" style="max-width:60ch;font-size:1rem">Para que todos sepan qué van a recibir, cada objeto se publica con fotos claras y un estado según esta guía.</p>
+    <div class="crit">
+      <div class="panel">
+        <h3>Fotos</h3>
+        <ul>
+          <li>Mínimo 3 fotos: de frente, por detrás y un detalle, como la etiqueta o la talla.</li>
+          <li>Con luz natural y sobre un fondo liso y claro.</li>
+          <li>Fotos verticales, con el objeto completo y sin filtros.</li>
+          <li>Muestra de cerca cualquier mancha, rotura o desgaste.</li>
+          <li>Solo fotos del objeto real, sacadas por su dueño.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Estados</h3>
+        <dl>
+          <div><dt>Como nuevo</dt><dd>Sin uso o usado una o dos veces, sin señales de uso.</dd></div>
+          <div><dt>Muy buen estado</dt><dd>Poco uso, sin manchas, roturas ni desgaste visible.</dd></div>
+          <div><dt>Buen estado</dt><dd>Uso normal, con desgaste leve.</dd></div>
+          <div><dt>Con detalles</dt><dd>Tiene algún desperfecto. Se explica en la descripción y se muestra en una foto.</dd></div>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3>Qué recibimos</h3>
+        <ul>
+          <li>Objetos limpios y listos para usar. La ropa va lavada.</li>
+          <li>Sin roturas graves ni mal olor.</li>
+          <li>Con talla o medidas anotadas.</li>
+          <li>Con el precio que quieres recibir. Nosotras agregamos el 20%.</li>
+          <li>No recibimos ropa interior ni objetos peligrosos.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="unete" aria-labelledby="t-unete">
+    <h2 id="t-unete">Únete a la comunidad</h2>
+    <p class="hint" style="max-width:60ch;font-size:1rem">Llena tu ficha una vez y así coordinamos tus compras y ventas más rápido. Pedimos solo lo necesario y no publicamos tus datos.</p>
+    <form class="panel" id="form-unete" novalidate>
+      <div class="row">
+        <label class="grow">Nombre y apellido
+          <input id="u-nombre" type="text" autocomplete="name" placeholder="Nombre y apellido">
+        </label>
+        <label class="grow">Teléfono
+          <input id="u-tel" type="tel" autocomplete="tel" inputmode="tel" placeholder="+56 9 1234 5678">
+        </label>
+      </div>
+      <div class="row">
+        <label class="grow">Correo
+          <input id="u-mail" type="email" autocomplete="email" placeholder="nombre@correo.com">
+        </label>
+        <label class="grow">Barrio o sector
+          <input id="u-sector" type="text" placeholder="Ej: Centro, Río Seco">
+        </label>
+      </div>
+      <label>Quiero
+        <select id="u-rol"><option>Comprar</option><option>Vender</option><option>Comprar y vender</option></select>
+      </label>
+      <label class="check"><input id="u-ok" type="checkbox"> Acepto que usen mis datos solo para coordinar compras y ventas.</label>
+      <button class="btn" type="submit">Preparar mi ficha</button>
+      <div id="u-out" hidden style="display:flex;flex-direction:column;gap:10px">
+        <textarea id="u-msg" readonly aria-label="Ficha lista para enviar"></textarea>
+        <div class="actions">
+          <a class="btn" id="u-wa" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+          <button class="btn ghost" type="button" id="u-copy">Copiar ficha</button>
+          <a class="btn ghost" id="u-form" href="#" target="_blank" rel="noopener" hidden>Llenar ficha en línea</a>
+        </div>
+      </div>
+      <p class="toast" id="u-toast" role="status"></p>
+    </form>
+  </section>
+</main>
+
+<footer>
+  <div class="in">Mercadito Design · Punta Arenas · <span id="contacto-txt"></span></div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlg-t">
+  <div class="dlg">
+    <div class="dlg-head">
+      <h2 id="dlg-t">Tu carrito</h2>
+      <button class="btn ghost small" type="button" id="dlg-close">Cerrar</button>
+    </div>
+    <p class="empty" id="cart-vacio" hidden>Tu carrito está vacío. Agrega algo desde el catálogo.</p>
+    <div id="cart-body" style="display:flex;flex-direction:column;gap:14px">
+      <div class="lines" id="lines"></div>
+      <div class="summary">
+        <div class="total"><span>Subtotal</span><span id="sub">$0</span></div>
+        <div class="total" id="env-row"><span>Envío</span><span id="env">$0</span></div>
+        <div class="total tot"><span>Total</span><span id="total">$0</span></div>
+      </div>
+      <label>Tu nombre
+        <input id="c-nombre" type="text" autocomplete="name" placeholder="Nombre">
+      </label>
+      <div class="opts" role="radiogroup" aria-label="Entrega">
+        <label class="check"><input type="radio" name="entrega" value="Retiro en persona" checked> Retiro en persona</label>
+        <label class="check"><input type="radio" name="entrega" value="Envío a domicilio"> Envío a domicilio</label>
+      </div>
+      <div class="stack" id="envio-box" hidden>
+        <label>Zona de envío
+          <select id="c-zona"></select>
+        </label>
+        <p class="hint">El costo depende de la zona. La dirección exacta la coordinamos por mensaje.</p>
+      </div>
+      <p class="hint" id="retiro-info"></p>
+      <textarea id="c-msg" readonly aria-label="Pedido listo para enviar"></textarea>
+      <div class="actions">
+        <a class="btn" id="c-wa" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+        <button class="btn ghost" type="button" id="c-copy">Copiar pedido</button>
+        <button class="link" type="button" id="c-vaciar">Vaciar carrito</button>
+      </div>
+      <p class="toast" id="c-toast" role="status"></p>
+      <p class="hint">Después te enviamos los datos para pagar por transferencia.</p>
+    </div>
+  </div>
+</dialog>
+
+<script>
+/* ====== EDITA AQUÍ ====== */
+var CONFIG = {
+  comision: 0.20,
+  // Tu WhatsApp con código de país y sin símbolos. Ejemplo: 56912345678. Déjalo vacío si aún no lo tienes.
+  whatsapp: "",
+  // Enlace a tu ficha en Google Forms (opcional). Déjalo vacío si no lo usas.
+  formularioUrl: "",
+  retiro: "El lugar y la hora de retiro se coordinan por mensaje.",
+  // Zonas de envío. costo: precio en pesos (ej: 2500) o null si aún no lo defines.
+  zonas: [
+    { nombre: "Centro", costo: null },
+    { nombre: "Norte", costo: null },
+    { nombre: "Sur", costo: null },
+    { nombre: "Otro sector (consultar)", costo: null }
+  ]
+};
+var CATEGORIAS = ["Ropa", "Zapatos", "Deporte", "Útiles", "Accesorios", "Otros"];
+// foto: ruta de una imagen subida a tu repositorio, por ejemplo "fotos/poleron.jpg". Sin foto se muestra un espacio gris.
+// venta: "disponible", "reservado" o "vendido". precioDueno es lo que recibe la persona dueña del objeto.
+var PRODUCTOS = [
+  { id: 1, nombre: "Polerón gris con capucha", cat: "Ropa", detalle: "Talla M", estado: "Muy buen estado", precioDueno: 8000, venta: "disponible", foto: "" },
+  { id: 2, nombre: "Zapatillas de running", cat: "Zapatos", detalle: "Número 37", estado: "Buen estado", precioDueno: 12000, venta: "disponible", foto: "" },
+  { id: 3, nombre: "Mochila escolar azul", cat: "Útiles", detalle: "Con 3 compartimentos", estado: "Como nueva", precioDueno: 6000, venta: "disponible", foto: "" },
+  { id: 4, nombre: "Cortavientos rojo", cat: "Ropa", detalle: "Talla S", estado: "Muy buen estado", precioDueno: 10000, venta: "reservado", foto: "" },
+  { id: 5, nombre: "Pelota de futsal", cat: "Deporte", detalle: "Tamaño 4", estado: "Buen estado", precioDueno: 5000, venta: "disponible", foto: "" },
+  { id: 6, nombre: "Calculadora científica", cat: "Útiles", detalle: "Con tapa", estado: "Como nueva", precioDueno: 7500, venta: "vendido", foto: "" },
+  { id: 7, nombre: "Jockey negro", cat: "Accesorios", detalle: "Ajustable", estado: "Muy buen estado", precioDueno: 3000, venta: "disponible", foto: "" },
+  { id: 8, nombre: "Bufanda de lana", cat: "Accesorios", detalle: "Gris, larga", estado: "Buen estado", precioDueno: 4500, venta: "disponible", foto: "" }
+];
+/* ========================= */
+
+var fmt = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
+function pub(p) { return Math.round(p * (1 + CONFIG.comision)); }
+function $(id) { return document.getElementById(id); }
+var catActiva = "Todo";
+var CLAVE = "mercadito-carrito";
+var carrito = [];
+var CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+
+function porId(id) { return PRODUCTOS.filter(function (p) { return p.id === id; })[0]; }
+function waLink(texto) {
+  var n = String(CONFIG.whatsapp || "").replace(/\D/g, "");
+  return n ? "https://wa.me/" + n + "?text=" + encodeURIComponent(texto) : "";
+}
+function ponerWa(a, texto) {
+  var l = waLink(texto);
+  if (l) { a.href = l; a.removeAttribute("aria-disabled"); }
+  else { a.removeAttribute("href"); a.setAttribute("aria-disabled", "true"); }
+}
+function copiar(texto, area, aviso) {
+  function ok() { aviso.textContent = "Copiado. Ahora pégalo en tu mensaje."; }
+  function manual() { area.focus(); area.select(); aviso.textContent = "Selecciona el texto y cópialo a mano."; }
+  try { navigator.clipboard.writeText(texto).then(ok, manual); } catch (e) { manual(); }
+}
+
+/* ---------- carrito ---------- */
+function cargarCarrito() {
+  try {
+    var g = JSON.parse(localStorage.getItem(CLAVE) || "[]");
+    if (Array.isArray(g)) carrito = g.filter(function (id) { var p = porId(id); return p && p.venta === "disponible"; });
+  } catch (e) { carrito = []; }
+}
+function guardarCarrito() { try { localStorage.setItem(CLAVE, JSON.stringify(carrito)); } catch (e) {} }
+function enCarrito(id) { return carrito.indexOf(id) >= 0; }
+function alternar(id) {
+  if (enCarrito(id)) carrito = carrito.filter(function (x) { return x !== id; });
+  else carrito.push(id);
+  guardarCarrito(); renderGrid(); renderCarrito();
+}
+function totalCarrito() { return carrito.reduce(function (s, id) { return s + pub(porId(id).precioDueno); }, 0); }
+function esEnvio() { return document.querySelector('input[name="entrega"]:checked').value === "Envío a domicilio"; }
+function zonaActual() { return CONFIG.zonas[$("c-zona").selectedIndex] || CONFIG.zonas[0]; }
+function costoEnvio() { if (!esEnvio()) return 0; var z = zonaActual(); return z && typeof z.costo === "number" ? z.costo : null; }
+function pedidoTexto() {
+  var nombre = $("c-nombre").value.trim();
+  var ent = document.querySelector('input[name="entrega"]:checked').value;
+  var sub = totalCarrito(), c = costoEnvio();
+  var t = "Hola! Quiero hacer este pedido en Mercadito Design" + (nombre ? " (soy " + nombre + ")" : "") + ":\n";
+  carrito.forEach(function (id) { var p = porId(id); t += "- " + p.nombre + " (" + p.detalle + "): " + fmt.format(pub(p.precioDueno)) + "\n"; });
+  t += "Subtotal: " + fmt.format(sub) + "\nEntrega: " + ent + "\n";
+  if (esEnvio()) t += "Zona: " + zonaActual().nombre + "\nEnvío: " + (c === null ? "por confirmar" : fmt.format(c)) + " (la dirección la coordinamos por mensaje)\n";
+  t += "Total: " + fmt.format(sub + (c || 0)) + (esEnvio() && c === null ? " + envío" : "") + "\nPago: transferencia. ¿Me envías los datos?";
+  return t;
+}
+function resumen() {
+  var sub = totalCarrito(), c = costoEnvio();
+  $("envio-box").hidden = !esEnvio();
+  $("retiro-info").hidden = esEnvio();
+  $("env-row").hidden = !esEnvio();
+  $("sub").textContent = fmt.format(sub);
+  $("env").textContent = c === null ? "Por confirmar" : fmt.format(c);
+  $("total").textContent = fmt.format(sub + (c || 0)) + (esEnvio() && c === null ? " + envío" : "");
+}
+function renderCarrito() {
+  $("cart-n").textContent = carrito.length;
+  var vacio = carrito.length === 0;
+  $("cart-vacio").hidden = !vacio;
+  $("cart-body").hidden = vacio;
+  var box = $("lines"); box.innerHTML = "";
+  carrito.forEach(function (id) {
+    var p = porId(id), row = document.createElement("div"); row.className = "line";
+    row.innerHTML = '<div class="t"><span></span><span class="meta"></span></div><button type="button" class="link">Quitar</button>';
+    row.querySelector(".t span").textContent = p.nombre;
+    row.querySelector(".meta").textContent = p.detalle + " · " + fmt.format(pub(p.precioDueno));
+    row.querySelector("button").addEventListener("click", function () { alternar(id); });
+    box.appendChild(row);
+  });
+  resumen();
+  if (!vacio) { var t = pedidoTexto(); $("c-msg").value = t; ponerWa($("c-wa"), t); }
+}
+function abrirCarrito() {
+  $("c-toast").textContent = ""; renderCarrito();
+  var d = $("dlg");
+  try { d.showModal(); } catch (e) { d.setAttribute("open", ""); }
+}
+
+/* ---------- catálogo ---------- */
+function renderChips() {
+  var box = $("chips"); box.innerHTML = "";
+  ["Todo"].concat(CATEGORIAS).forEach(function (c) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = c;
+    b.setAttribute("aria-pressed", String(c === catActiva));
+    b.addEventListener("click", function () { catActiva = c; renderChips(); renderGrid(); });
+    box.appendChild(b);
+  });
+}
+function renderGrid() {
+  var q = $("q").value.trim().toLowerCase(), solo = $("solo-disp").checked, orden = $("orden").value;
+  var lista = PRODUCTOS.filter(function (p) {
+    if (catActiva !== "Todo" && p.cat !== catActiva) return false;
+    if (solo && p.venta !== "disponible") return false;
+    if (q && (p.nombre + " " + p.detalle + " " + p.cat).toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  if (orden === "menor") lista.sort(function (a, b) { return a.precioDueno - b.precioDueno; });
+  else if (orden === "mayor") lista.sort(function (a, b) { return b.precioDueno - a.precioDueno; });
+  else lista.sort(function (a, b) { return b.id - a.id; });
+
+  var grid = $("grid"); grid.innerHTML = "";
+  lista.forEach(function (p) {
+    var card = document.createElement("article");
+    card.className = "card" + (p.venta !== "disponible" ? " off" : "");
+    var foto = p.foto ? '<img loading="lazy" src="' + encodeURI(p.foto) + '" alt="">' : CAM;
+    var badge = p.venta !== "disponible" ? '<span class="badge ' + p.venta + '">' + (p.venta === "reservado" ? "Reservado" : "Vendido") + "</span>" : "";
+    card.innerHTML = '<div class="photo">' + foto + badge + '</div><div class="body"><span class="cat"></span><h3></h3><p class="meta"></p><p class="price"></p></div>';
+    card.querySelector(".cat").textContent = p.cat;
+    card.querySelector("h3").textContent = p.nombre;
+    card.querySelector(".meta").textContent = p.detalle + " · " + p.estado;
+    card.querySelector(".price").textContent = fmt.format(pub(p.precioDueno));
+    var btn = document.createElement("button");
+    btn.type = "button"; btn.className = "btn";
+    if (p.venta !== "disponible") { btn.textContent = p.venta === "reservado" ? "Reservado" : "Vendido"; btn.disabled = true; }
+    else {
+      var dentro = enCarrito(p.id);
+      btn.textContent = dentro ? "Quitar del carrito" : "Agregar al carrito";
+      if (dentro) btn.classList.add("ghost");
+      btn.addEventListener("click", function () { alternar(p.id); });
+    }
+    card.appendChild(btn);
+    grid.appendChild(card);
+  });
+  $("vacio").hidden = lista.length > 0;
+}
+
+/* ---------- vender ---------- */
+function calc() {
+  var v = Math.max(0, Number($("calc").value) || 0), p = pub(v);
+  $("calc-pub").textContent = fmt.format(p);
+  $("calc-gan").textContent = fmt.format(p - v);
+}
+
+/* ---------- eventos ---------- */
+$("btn-carrito").addEventListener("click", abrirCarrito);
+$("dlg-close").addEventListener("click", function () { var d = $("dlg"); try { d.close(); } catch (e) { d.removeAttribute("open"); } });
+$("c-copy").addEventListener("click", function () { copiar($("c-msg").value, $("c-msg"), $("c-toast")); });
+$("c-vaciar").addEventListener("click", function () { carrito = []; guardarCarrito(); renderGrid(); renderCarrito(); });
+$("c-nombre").addEventListener("input", renderCarrito);
+Array.prototype.forEach.call(document.querySelectorAll('input[name="entrega"]'), function (r) { r.addEventListener("change", renderCarrito); });
+$("c-wa").addEventListener("click", function (e) { if (this.getAttribute("aria-disabled")) { e.preventDefault(); $("c-toast").textContent = "Aún no hay un WhatsApp configurado. Copia el pedido y envíalo a mano."; } });
+$("q").addEventListener("input", renderGrid);
+$("orden").addEventListener("change", renderGrid);
+$("solo-disp").addEventListener("change", renderGrid);
+$("calc").addEventListener("input", calc);
+
+CATEGORIAS.forEach(function (c) { var o = document.createElement("option"); o.textContent = c; $("f-cat").appendChild(o); });
+$("form-vende").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var nombre = $("f-nombre").value.trim(), objeto = $("f-objeto").value.trim(), precio = Number($("f-precio").value) || 0;
+  if (!nombre || !objeto || !precio) { $("f-toast").textContent = "Completa tu nombre, el objeto y el precio que quieres recibir."; return; }
+  var talla = $("f-talla").value.trim();
+  var t = "Hola! Soy " + nombre + " y quiero vender en Mercadito Design:\n" +
+    "- Objeto: " + objeto + (talla ? " (" + talla + ")" : "") + "\n" +
+    "- Categoría: " + $("f-cat").value + "\n" +
+    "- Estado: " + $("f-estado").value + "\n" +
+    "- Quiero recibir: " + fmt.format(precio) + " (se publicaría a " + fmt.format(pub(precio)) + ")\n" +
+    "Te mando las fotos por acá.";
+  $("f-msg").value = t; ponerWa($("f-wa"), t);
+  $("f-out").hidden = false; $("f-toast").textContent = "";
+});
+$("f-copy").addEventListener("click", function () { copiar($("f-msg").value, $("f-msg"), $("f-toast")); });
+$("f-wa").addEventListener("click", function (e) { if (this.getAttribute("aria-disabled")) { e.preventDefault(); $("f-toast").textContent = "Aún no hay un WhatsApp configurado. Copia el mensaje y envíalo a mano."; } });
+
+/* ---------- ficha de inscripción ---------- */
+$("form-unete").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var nombre = $("u-nombre").value.trim(), tel = $("u-tel").value.trim(), mail = $("u-mail").value.trim();
+  var digitos = tel.replace(/\D/g, "");
+  var aviso = $("u-toast");
+  if (!nombre) { aviso.textContent = "Escribe tu nombre y apellido."; return; }
+  if (digitos.length < 8) { aviso.textContent = "Escribe un teléfono válido."; return; }
+  if (mail.indexOf("@") < 1 || mail.indexOf(".") < 0) { aviso.textContent = "Escribe un correo válido."; return; }
+  if (!$("u-ok").checked) { aviso.textContent = "Marca la casilla para aceptar el uso de tus datos."; return; }
+  var sector = $("u-sector").value.trim();
+  var t = "Hola! Quiero unirme a la comunidad de Mercadito Design:\n" +
+    "- Nombre: " + nombre + "\n- Teléfono: " + tel + "\n- Correo: " + mail + "\n" +
+    (sector ? "- Sector: " + sector + "\n" : "") +
+    "- Quiero: " + $("u-rol").value + "\n" +
+    "Acepto que usen mis datos solo para coordinar compras y ventas.";
+  $("u-msg").value = t; ponerWa($("u-wa"), t);
+  if (CONFIG.formularioUrl) { $("u-form").href = CONFIG.formularioUrl; $("u-form").hidden = false; }
+  $("u-out").hidden = false; aviso.textContent = "";
+});
+$("u-copy").addEventListener("click", function () { copiar($("u-msg").value, $("u-msg"), $("u-toast")); });
+$("u-wa").addEventListener("click", function (e) { if (this.getAttribute("aria-disabled")) { e.preventDefault(); $("u-toast").textContent = "Aún no hay un WhatsApp configurado. Copia la ficha y envíala a mano."; } });
+
+/* ---------- aviso de bienvenida ---------- */
+var CLAVE_AVISO = "mercadito-aviso-cerrado";
+try { if (localStorage.getItem(CLAVE_AVISO)) $("banner").hidden = true; } catch (e) {}
+function cerrarAviso() { $("banner").hidden = true; try { localStorage.setItem(CLAVE_AVISO, "1"); } catch (e) {} }
+$("banner-x").addEventListener("click", cerrarAviso);
+$("banner-ir").addEventListener("click", function () { cerrarAviso(); });
+
+CONFIG.zonas.forEach(function (z) { var o = document.createElement("option"); o.textContent = z.nombre + (typeof z.costo === "number" ? " · " + fmt.format(z.costo) : ""); $("c-zona").appendChild(o); });
+$("c-zona").addEventListener("change", renderCarrito);
+$("retiro-info").textContent = CONFIG.retiro;
+var n = String(CONFIG.whatsapp || "").replace(/\D/g, "");
+$("contacto-txt").textContent = n ? "WhatsApp +" + n : "WhatsApp por configurar";
+cargarCarrito(); renderChips(); renderGrid(); renderCarrito(); calc();
+</script>
+
+</html>
